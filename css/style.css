@@ -1,0 +1,71 @@
+body {
+	background-color: #FAF8EF;
+	font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+/*
+STYLING FOR AREA ABOVE GAME BOARD
+*/
+
+.title {
+	font-size: 80px;
+	font-weight: bold;
+	margin: 0;
+}
+
+.scoresContainer {
+	float: right;
+	text-align: right;
+}
+
+.score.best {
+	position: relative;
+	display: inline-block;
+	background: #bbada0;
+	padding: 15px 25px;
+	font-size: 25px;
+	height: 25px;
+	line-height: 47px;
+	font-weight: bold;
+	border-radius: 3px;
+	color: white;
+	margin-top: 8px;
+	text-align: center;
+}
+
+.aboveGame:after{
+	content: "";
+	display: block;
+	clear:both;
+}
+
+/*
+STYLING FOR GAME BOARD
+*/
+.container {
+	width: 600px;
+	margin: 0 auto;
+}
+
+.board {
+	position: absolute;
+	background-color: #BBADA0;
+	border-radius: 4px;
+}
+
+.gamerow {
+	height: 100px;
+}
+
+.gamerow:after{
+	content: "";
+	display: block;
+	clear:both;
+}
+
+.gamesquare {
+	display: block;
+	margin-right: 15px;
+	float: left;
+	border-radius: 3px;
+}

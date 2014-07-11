@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<head>
+
+<title>Inverter</title>
+
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+
+	<script type="text/javascript" src="js/jquery-1.10.2.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/viewmodel.js"></script>
+	<script type="text/javascript" src="js/controller.js"></script>
+
+</head>
+
+<body>
+	<div class="container">
+		<div class="heading">
+			<h1 class="title">Inverter</h1>
+			<div class="scoresContainer">
+				<div class="currLevel"></div>
+				<div class="score"></div>
+				<div class="best"></div>
+				<div class="total"></div>
+			</div>
+		</div>
+		<div class="aboveGame">
+			<p class="gameInfo"></p>
+			<div class="colorGoal"></div>
+			<!--a class="restart"></a-->
+		</div>
+		<div class="board"></div>
+	</div>
+
+
+
+	<div id="instructions" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content" id="pullThisHeight">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title">Welcome to Inverter!</h4>
+				</div>
+				<div class="modal-body">
+					<p>The goal of the game is to switch the color of the board from orange to tan in the fewest clicks possible.
+					Each click inverts the color of the tile clicked as well as all tiles immediately above, below, and to either side.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-success" data-dismiss="modal">Lets go!</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<div id="newLevel" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title" id="cheesyGoodJob"></h4>
+				</div>
+				<div class="modal-body">
+					<p id="levelDescriptor"></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-success" data-dismiss="modal">Go</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+</body>
