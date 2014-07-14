@@ -1,54 +1,38 @@
-/**
-* HTML Comment
-* 
-* Each square in the game board will have the 
-*
-*
-*
-* Colors: #ED945C and #E6BF81
-*
-*/
-
+// Daniel Gorrie
 
 function cookieHelper() {
-	var cookie = document.cookie;
 
-	this.readCookie = function(game) {
-		var res = this.getCookie("gs");
-		if (res != "") {
-			var state = res.split(' ');
-			console.log(state);
-			game.currentClicks = parseInt(state[0]);
-			game.bestLevel = parseInt(state[1]);
-			game.clicksForBest = parseInt(state[2]);
-			game.totalClicks = parseInt(state[3]);
-			game.level = parseInt(state[4]);
-		}
+	this.readCookie = function(callback) {
+		callback(this.getCookie("gs"));
 	}
 
 	this.writeCookie = function(game) {
 		var d = new Date();
 		d.setTime(d.getTime() + (300*24*60*60*1000));
 		var expires = "expires="+d.toGMTString();
-		cookie = "gs=" + 
+		var toWrite = "gs=" + 
 			game.currentClicks + " " +
 			game.bestLevel + " " +
 			game.clicksForBest + " " +
 			game.totalClicks + " " +
-			game.level +
+			game.level + " " +
+			game.isFirstGame + " " +
+			game.gb.board.toString() + 
 			"; "+ expires;
+		document.cookie = toWrite;
+		console.log(document.cookie);
 	}
 
 	this.getCookie = function(cname) {
-    var name = cname + "=";
-    var ca = cookie.split(';');
-    for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1);
-        if (c.indexOf(name) != -1) return c.substring(name.length,c.length);
-    }
-    return "";
-}
+	    var name = cname + "=";
+	    var ca = document.cookie.split(';');
+	    for(var i=0; i<ca.length; i++) {
+	        var c = ca[i];
+	        while (c.charAt(0)==' ') c = c.substring(1);
+	        if (c.indexOf(name) != -1) return c.substring(name.length,c.length);
+	    }
+	    return "";
+	}
 }
 
 function styleHelper() {
@@ -89,6 +73,7 @@ function Game() {
 	this.clicksForBest = 0;
 	this.totalClicks = 0;
 	this.level = 1;
+	this.isFirstGame = 1;
 
 	// Objects that help facilitate the game
 	this.gb;
@@ -101,19 +86,38 @@ function Game() {
 		this.currentClicks++;
 		this.totalClicks++;
 		this.updateCounts();
-		this.cookh.writeCookie(this);
 		if (this.gb.isGameWin()) {
-			this.gameEnd();
+			this.gameEnd(function(){
+				self.cookh.writeCookie(self);
+			});
+		} else {
+			self.cookh.writeCookie(self);
 		}
 	}
 
 	this.beginGame = function() {
-		this.cookh.readCookie(this);
-		$('#instructions').modal('show');
-		this.setupLevel();
+		var res;
+		this.cookh.readCookie(function(csv){
+			res = csv;
+			if (res != "") {
+				var state = res.split(" ");
+				self.currentClicks = parseInt(state[0]);
+				self.bestLevel = parseInt(state[1]);
+				self.clicksForBest = parseInt(state[2]);
+				self.totalClicks = parseInt(state[3]);
+				self.level = parseInt(state[4]);
+				self.isFirstGame = parseInt(state[5]);
+			}
+			if (self.isFirstGame == 1) {
+				$('#instructions').modal('show');
+				self.isFirstGame = 0;
+			}
+			self.setupLevel();
+		});
+		
 	}
 
-	this.gameEnd = function() {
+	this.gameEnd = function(callback) {
 		this.level++;
 		if (this.level == this.bestLevel && this.currentClicks < this.clicksForBest) {
 			this.clicksForBest = this.currentClicks;
@@ -123,6 +127,7 @@ function Game() {
 			this.bestLevel = this.level;
 		}
 		this.resetGame();
+		callback();
 	}
 
 	this.resetGame = function() {
@@ -134,24 +139,24 @@ function Game() {
 		}, 500);
 		setTimeout(function(){
 			$('#newLevel').modal('hide');
-		}, 2000);
+		}, 1500);
 	}
 
 	this.setupLevel = function() {
 		this.gb = new GameBoard(this.level, this.level);
 		$('.board').html("");
 		this.gb.populate();
-		this.gb.renderBoard();
-		this.sh.setGridSize(this.level);
-		this.updateCounts();
-		this.applyBindings();
+		self.gb.renderBoard();
+		self.sh.setGridSize(this.level);
+		self.updateCounts();
+		self.applyBindings();
 	}
 
 	this.updateCounts = function() {
-		$(".currLevel").html("Current Level: " + this.level);
-		$(".score").html("Current Clicks: " + this.currentClicks);
+		$(".currLevel").html("Current Level: <b>" + this.level + "</b>");
+		$(".score").html("Current Clicks: <b>" + this.currentClicks +"</b>");
 		$(".best").html("Best Level: <b>" + this.bestLevel + "</b> (" + this.clicksForBest + " clicks)");
-		$(".total").html("Total Clicks: " + this.totalClicks);
+		$(".total").html("Total Clicks: <b>" + this.totalClicks + "</b>");
 	}
 
 	this.applyBindings = function() {
@@ -159,7 +164,7 @@ function Game() {
 			// Get the other class
 			var cname = $(this).context.className.split(" ")[1];
 			var coord = cname.substring(5).split("q");
-			console.log("coord " + coord);
+			// console.log("coord " + coord);
 			var height = parseInt(coord[1]);
 			var width = parseInt(coord[0]);
 			self.processClick(width, height);
@@ -167,7 +172,15 @@ function Game() {
 	}
 
 	this.onNewGameClick = function() {
+		this.currentClicks = 0;
+		this.level = 1;
+		this.setupLevel();
+	}
 
+	this.onResetLevelClick = function() {
+		this.gb.populate();
+		this.gb.renderBoard();
+		this.setupLevel();
 	}
 }
 
@@ -256,18 +269,18 @@ function GameBoard (wd, hi) {
 
 	// For a single tile finds the corresponding DOM element 
 	// and inverts the color
-	this.processCLickView = function (w, h) {
+	this.processCLickView = function(w, h) {
 		var coord = ".coord" + w + "q" + h;
 		// console.log(coord);
 		if (this.board[w][h] == 0) {
-			$(coord).css("background-color", "#ed9456");
+			$(coord).css("background-color", "#E6AB5E");
 		} else {
-			$(coord).css("background-color", "#e6bf81");
+			$(coord).css("background-color", "#5C90FF");
 		}
 	}
 
 	// Populate the game board with 0s and 1s randomly
-	this.populate = function () {
+	this.populate = function() {
 		for (var i = 0; i <= this.wide; i++) {
 			for (var j = 0; j <= this.high; j++) {
 				this.board[i][j] = 0;
@@ -275,7 +288,17 @@ function GameBoard (wd, hi) {
 		}
 	}
 
-	this.isGameWin = function () {
+	this.isGameWin = function() {
 		return this.count == (this.wide + 1) * (this.high + 1);
 	}
+
+	/*this.parseGameBoard = function(csv, callback) {
+		var res = csv.split(",");
+		//console.log(res.length);
+		for (var i = 0; i < res.length; i++) {
+			console.log(Math.floor(i/(this.high+1)) + "," + i % (this.high+1));
+			this.board[Math.floor(i / (this.high+1))][i % (this.high+1)] = parseInt(res[i]);
+		}
+		callback();
+	}*/
 }
