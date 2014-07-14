@@ -1,4 +1,4 @@
-inverter
+Inverter
 ========
 
-The inverter game
+A board based puzzle game. Play at http://gorried.github.io/inverter
